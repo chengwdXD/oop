@@ -11,7 +11,7 @@ protected $color;
 
     public function __construct($color)
     {
-      $this->color=$color;  
+      $this->color=$color;  // $this->color這串等於protected $color裡的$color
     }
     function getColor()
     {
@@ -20,6 +20,7 @@ protected $color;
   }
   function addColor($color){
        $this->color=$this->color."+".$color;
+       //$this->color.="+".$color;
       return $this;
   }
 }
