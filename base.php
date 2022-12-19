@@ -12,11 +12,11 @@ echo "<hr>";
 $Student->save(['name'=>'張大同','dept'=>2,'uni_id'=>"H22211223",'id'=>3]);
 $stu=$Student->find(15);
 dd($stu);
+// $Student->save($stu);
 
 echo $Student->count(['dept'=>2]);
 echo "<hr>";
 echo $Student->sum('graduate_at');
-
 // $stus = $Student->all(['dept=>3']);
 // foreach ($stus as $stu) {
 //     echo $stu['birthday'] . "=>" . $stu['dept']; //[]內是要查詢資料表裡的欄位
@@ -161,7 +161,51 @@ function sum($col,...$arg){
     echo $sql;
     return $this->pdo->query($sql)->fetchColumn();
 }
+function max($col,...$arg){
+    if(isset($arg[0])){
+        foreach($arg[0] as $key => $value){
+            $tmp[]="`$key`='$value'";
+        }
+        $sql="select max($col) from $this->table where ";
+        $sql.=join(" && ",$tmp);
+    }else{
 
+        $sql="select max($col) from $this->table";
+    }
+
+    echo $sql;
+    return $this->pdo->query($sql)->fetchColumn();
+}
+function min($col,...$arg){
+    if(isset($arg[0])){
+        foreach($arg[0] as $key => $value){
+            $tmp[]="`$key`='$value'";
+        }
+        $sql="select min($col) from $this->table where ";
+        $sql.=join(" && ",$tmp);
+    }else{
+
+        $sql="select min($col) from $this->table";
+    }
+
+    echo $sql;
+    return $this->pdo->query($sql)->fetchColumn();
+}
+function avg($col,...$arg){
+    if(isset($arg[0])){
+        foreach($arg[0] as $key => $value){
+            $tmp[]="`$key`='$value'";
+        }
+        $sql="select avg($col) from $this->table where ";
+        $sql.=join(" && ",$tmp);
+    }else{
+
+        $sql="select avg($col) from $this->table";
+    }
+
+    echo $sql;
+    return $this->pdo->query($sql)->fetchColumn();
+}
 
 }
 function dd($array){
