@@ -2,19 +2,26 @@
 $Student = new DB('students'); //定義$Student 抓下面的class DB, ()內是要查詢的資料表
 // var_dump($Student);
 
-$john = $Student->find(30);
-echo $john['birthday'];
+// $john = $Student->find(30);
+// echo $john['birthday'];
 
 
+$Student->save(['name'=>'張大同','dept'=>2,'uni_id'=>"H22211223"]);
 
+echo "<hr>";
+$Student->save(['name'=>'張大同','dept'=>2,'uni_id'=>"H22211223",'id'=>3]);
+$stu=$Student->find(15);
+dd($stu);
 
+echo $Student->count(['dept'=>2]);
+echo "<hr>";
+echo $Student->sum('graduate_at');
 
-
-$stus = $Student->all(['dept=>3']);
-foreach ($stus as $stu) {
-    echo $stu['birthday'] . "=>" . $stu['dept']; //[]內是要查詢資料表裡的欄位
-    echo "<br>";
-}
+// $stus = $Student->all(['dept=>3']);
+// foreach ($stus as $stu) {
+//     echo $stu['birthday'] . "=>" . $stu['dept']; //[]內是要查詢資料表裡的欄位
+//     echo "<br>";
+// }
 
 class DB
 {
@@ -98,8 +105,17 @@ class DB
     
     }
 
-function save($array){
+function save($array){ //有id更新  沒id新增  (合併新增和更新的function)
     if(isset($array['id'])){
+        foreach($array as $key => $value){
+            if($key!='id'){
+
+                $tmp[]="`$key`='$value'";
+            }
+        }
+        $sql="update $this->table set ";
+        $sql .=join(",",$tmp);
+        $sql .=" where `id` ='{$array['id']}'";
 
     }else{
         $cols=array_keys($array);
@@ -107,10 +123,51 @@ function save($array){
                                 values('" . join("','",$array) . "')";
 
         echo $sql;
-        //return $this->pdo->exec($sql);
+        //return $this->pdo->exec($sql); //將sql語法寫入資料庫執行
     }
+
+    
+    
+}
+function count($arg){
+    if(is_array($arg)){
+        foreach($arg as $key => $value){
+            $tmp[]="`$key`='$value'";
+        }
+        $sql="select count(*) from $this->table where ";
+        $sql.=join(" && ",$tmp);
+    }else{
+
+        $sql="select count($arg) from $this->table";
+    }
+
+    echo $sql;
+    return $this->pdo->query($sql)->fetchColumn();
+}
+///////////////////////////////
+
+function sum($col,...$arg){
+    if(isset($arg[0])){
+        foreach($arg[0] as $key => $value){
+            $tmp[]="`$key`='$value'";
+        }
+        $sql="select sum($col) from $this->table where ";
+        $sql.=join(" && ",$tmp);
+    }else{
+
+        $sql="select sum($col) from $this->table";
+    }
+
+    echo $sql;
+    return $this->pdo->query($sql)->fetchColumn();
 }
 
 
-    
+}
+function dd($array){
+    echo "<pre>";
+    print_r($array);
+    echo "</pre>";
+
+
 }
