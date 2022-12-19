@@ -31,6 +31,10 @@ echo $Score->avg('score');
 echo "<hr>";
 echo $Score->sum('score');
 echo "<hr>";
+echo "整張資料表筆數：".$Student->count();
+echo "<hr>";
+echo "dept為2的資料筆數:".$Student->count(['dept'=>2]);
+echo "<hr>";
 class DB
 {
     protected $table;
@@ -55,9 +59,10 @@ class DB
                 //是陣列 ['acc'=>'mack','pw'=>'1234'];
                 //是陣列 ['product'=>'PC','price'=>'10000'];
 
-                foreach ($args[0] as $key => $value) {
-                    $tmp[] = "`$key`='$value'";
-                }
+                // foreach ($args[0] as $key => $value) {
+                //     $tmp[] = "`$key`='$value'";
+                // }
+                $tmp=$this->arrayToSqlArray($args[0]);
 
                 $sql = $sql . " WHERE " . join(" && ", $tmp);
             } else {
@@ -79,38 +84,41 @@ class DB
    public function find($id)
     {
       
-        $sql = "select * from $this->table ";
+        $sql="select * from `$this->table` ";
 
-        if (is_array($id)) {
-            foreach ($id as $key => $value) {
-                $tmp[] = "`$key`='$value'";
-            }
-
-            $sql = $sql . " where " . join(" && ", $tmp);
-        } else {
-
-            $sql = $sql . " where `id`='$id'";
+        if(is_array($id)){
+            $tmp=$this->arrayToSqlArray($id);
+            /* foreach($id as $key => $value){
+                $tmp[]="`$key`='$value'";
+            } */
+            $sql = $sql . " where " . join(" && ",$tmp);
+    
+        }else{
+    
+            $sql=$sql . " where `id`='$id'";
         }
         //echo $sql;
-        return $this->pdo
-            ->query($sql)
-            ->fetch(PDO::FETCH_ASSOC);
+        return $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
     }
 
     function del($id){
-        $sql="delete  from `$this->table` ";
-    if(is_array($id)){
-        foreach($id as $key => $value){
-            $tmp[]="`$key`='$value'";
-        }
-        $sql = $sql . " where " . join(" && ",$tmp);
-    }else{
-     
-        $sql=$sql . " where `id`='$id'";
-    }
-    echo $sql;
-    return $this->pdo->exec($sql);
+        $sql="delete from `$this->table` ";
+
+        if(is_array($id)){
+            /* foreach($id as $key => $value){
+                $tmp[]="`$key`='$value'";
+            } */
+            $tmp=$this->arrayToSqlArray($id);
+            $sql = $sql . " where " . join(" && ",$tmp);
     
+        }else{
+    
+            $sql=$sql . " where `id`='$id'";
+        }
+
+        //echo $sql;
+        return $this->pdo->exec($sql);
+
     }
 
 function save($array){ //有id更新  沒id新增  (合併新增和更新的function)
@@ -133,10 +141,8 @@ function save($array){ //有id更新  沒id新增  (合併新增和更新的func
         echo $sql;
         //return $this->pdo->exec($sql); //將sql語法寫入資料庫執行
     }
-
-    
-    
 }
+
 function count(...$arg){
     // if(isset($arg[0])){
     //     foreach($arg[0] as $key => $value){
@@ -149,9 +155,8 @@ function count(...$arg){
     //     $sql="select count(*) from $this->table";
     // }
 
-    $sql=$this->mathSql('max','*',$arg);//將上述簡化後的程式
-
-    echo $sql;
+    $sql=$this->mathSql('count','*',$arg);//將上述簡化後的程式
+    //echo $sql;
     return $this->pdo->query($sql)->fetchColumn();
 }
 
@@ -218,7 +223,7 @@ function avg($col,...$arg){
     return $this->pdo->query($sql)->fetchColumn();
 }
 
-private function mathSql($math,$col,...$arg){
+private function mathSql($math,$col,...$arg){ //簡化sum max min count
     if(isset($arg[0][0])){
         foreach($arg[0][0] as $key => $value){
             $tmp[]="`$key`='$value'";
@@ -232,11 +237,26 @@ private function mathSql($math,$col,...$arg){
 
     return $sql;
 }
+
+////////////////
+private function arrayTosqlArray($array){//
+   
+        foreach($array as $key => $value){
+            $tmp[]="`$key`='$value'";
+            return $tmp;
+        
+
+        }
+
+
+////////////////
+
+}
 }
 function dd($array){
     echo "<pre>";
     print_r($array);
     echo "</pre>";
-
-
+    
+    
 }
