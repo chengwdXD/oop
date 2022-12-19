@@ -22,7 +22,15 @@ echo $Student->sum('graduate_at');
 //     echo $stu['birthday'] . "=>" . $stu['dept']; //[]內是要查詢資料表裡的欄位
 //     echo "<br>";
 // }
-
+$Score=new DB("student_scores");
+echo $Score->max('score');
+echo "<hr>";
+echo $Score->min('score');
+echo "<hr>";
+echo $Score->avg('score');
+echo "<hr>";
+echo $Score->sum('score');
+echo "<hr>";
 class DB
 {
     protected $table;
@@ -129,84 +137,101 @@ function save($array){ //有id更新  沒id新增  (合併新增和更新的func
     
     
 }
-function count($arg){
-    if(is_array($arg)){
-        foreach($arg as $key => $value){
-            $tmp[]="`$key`='$value'";
-        }
-        $sql="select count(*) from $this->table where ";
-        $sql.=join(" && ",$tmp);
-    }else{
+function count(...$arg){
+    // if(isset($arg[0])){
+    //     foreach($arg[0] as $key => $value){
+    //         $tmp[]="`$key`='$value'";
+    //     }
+    //     $sql="select count(*) from $this->table where ";
+    //     $sql.=join(" && ",$tmp);
+    // }else{
 
-        $sql="select count($arg) from $this->table";
-    }
+    //     $sql="select count(*) from $this->table";
+    // }
+
+    $sql=$this->mathSql('max','*',$arg);//將上述簡化後的程式
 
     echo $sql;
     return $this->pdo->query($sql)->fetchColumn();
 }
-///////////////////////////////
+
 
 function sum($col,...$arg){
-    if(isset($arg[0])){
-        foreach($arg[0] as $key => $value){
-            $tmp[]="`$key`='$value'";
-        }
-        $sql="select sum($col) from $this->table where ";
-        $sql.=join(" && ",$tmp);
-    }else{
+    // if(isset($arg[0])){
+    //     foreach($arg[0] as $key => $value){
+    //         $tmp[]="`$key`='$value'";
+    //     }
+    //     $sql="select sum($col) from $this->table where ";
+    //     $sql.=join(" && ",$tmp);
+    // }else{
 
-        $sql="select sum($col) from $this->table";
-    }
-
+    //     $sql="select sum($col) from $this->table";
+    // }
+    $sql=$this->mathSql('max',$col,$arg);//將上述簡化後的程式
     echo $sql;
     return $this->pdo->query($sql)->fetchColumn();
 }
 function max($col,...$arg){
-    if(isset($arg[0])){
-        foreach($arg[0] as $key => $value){
-            $tmp[]="`$key`='$value'";
-        }
-        $sql="select max($col) from $this->table where ";
-        $sql.=join(" && ",$tmp);
-    }else{
+    // if(isset($arg[0])){
+    //     foreach($arg[0] as $key => $value){
+    //         $tmp[]="`$key`='$value'";
+    //     }
+    //     $sql="select max($col) from $this->table where ";
+    //     $sql.=join(" && ",$tmp);
+    // }else{
 
-        $sql="select max($col) from $this->table";
-    }
-
+    //     $sql="select max($col) from $this->table";
+    // }
+    $sql=$this->mathSql('max',$col,$arg);//將上述簡化後的程式
     echo $sql;
     return $this->pdo->query($sql)->fetchColumn();
 }
 function min($col,...$arg){
-    if(isset($arg[0])){
-        foreach($arg[0] as $key => $value){
-            $tmp[]="`$key`='$value'";
-        }
-        $sql="select min($col) from $this->table where ";
-        $sql.=join(" && ",$tmp);
-    }else{
+    // if(isset($arg[0])){
+    //     foreach($arg[0] as $key => $value){
+    //         $tmp[]="`$key`='$value'";
+    //     }
+    //     $sql="select min($col) from $this->table where ";
+    //     $sql.=join(" && ",$tmp);
+    // }else{
 
-        $sql="select min($col) from $this->table";
-    }
-
+    //     $sql="select min($col) from $this->table";
+    // }
+    $sql=$this->mathSql('min',$col,$arg);//將上述簡化後的程式
     echo $sql;
     return $this->pdo->query($sql)->fetchColumn();
 }
 function avg($col,...$arg){
-    if(isset($arg[0])){
-        foreach($arg[0] as $key => $value){
-            $tmp[]="`$key`='$value'";
-        }
-        $sql="select avg($col) from $this->table where ";
-        $sql.=join(" && ",$tmp);
-    }else{
+    // if(isset($arg[0])){
+    //     foreach($arg[0] as $key => $value){
+    //         $tmp[]="`$key`='$value'";
+    //     }
+    //     $sql="select avg($col) from $this->table where ";
+    //     $sql.=join(" && ",$tmp);
+    // }else{
 
-        $sql="select avg($col) from $this->table";
-    }
+    //     $sql="select avg($col) from $this->table";
+    // }
 
+    $sql=$this->mathSql('avg',$col,$arg);//將上述簡化後的程式
     echo $sql;
     return $this->pdo->query($sql)->fetchColumn();
 }
 
+private function mathSql($math,$col,...$arg){
+    if(isset($arg[0][0])){
+        foreach($arg[0][0] as $key => $value){
+            $tmp[]="`$key`='$value'";
+        }
+        $sql="select $math($col) from $this->table where ";
+        $sql.=join(" && ",$tmp);
+    }else{
+
+        $sql="select $math($col) from $this->table";
+    }
+
+    return $sql;
+}
 }
 function dd($array){
     echo "<pre>";
