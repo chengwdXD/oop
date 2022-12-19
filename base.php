@@ -81,4 +81,25 @@ class DB
             ->query($sql)
             ->fetch(PDO::FETCH_ASSOC);
     }
+
+    function del($id){
+        $sql="delete  from `$this->table` ";
+    if(is_array($id)){
+        foreach($id as $key => $value){
+            $tmp[]="`$key`='$value'";
+        }
+        $sql = $sql . " where " . join(" && ",$tmp);
+    }else{
+     
+        $sql=$sql . " where `id`='$id'";
+    }
+    echo $sql;
+    return $this->pdo->exec($sql);
+    
+    }
+
+
+
+    
+    
 }
