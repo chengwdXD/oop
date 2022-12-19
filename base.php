@@ -98,8 +98,19 @@ class DB
     
     }
 
+function save($array){
+    if(isset($array['id'])){
+
+    }else{
+        $cols=array_keys($array);
+        $sql="insert into $this->table (`" . join("`,`",$cols) . "`)
+                                values('" . join("','",$array) . "')";
+
+        echo $sql;
+        //return $this->pdo->exec($sql);
+    }
+}
 
 
-    
     
 }
